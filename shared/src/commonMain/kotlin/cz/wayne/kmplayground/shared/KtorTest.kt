@@ -33,6 +33,94 @@ data class DBFileResult(
     val data: String
 )
 
+@Serializable
+data class JSONFileResult(
+    val jsonrpc: Float = 2.0,
+    val result: Result
+)
+
+@Serializable
+data class Result(val sports: List<Sport>)
+
+@Serializable
+data class Sport(
+    @SerialName("id_sport")
+    val idSport: Int,
+    @SerialName("sport_name")
+    val sportName: String,
+    @SerialName("sport_code")
+    val sportCode: String,
+    @SerialName("sport_order")
+    val sportOrder: Int,
+    val regions: List<Region>
+)
+
+@Serializable
+data class Region(
+    @SerialName("id_oppty_region")
+    val idOpptyRegion: Int,
+    @SerialName("oppty_region_name")
+    val opptyRegionName: String,
+    @SerialName("oppty_region_code")
+    val opttyRegionCode: String? = null,
+    @SerialName("region_order")
+    val regionOrder: Int,
+    val leagues: List<League>
+)
+
+@Serializable
+data class League(
+    @SerialName("id_league")
+    val leagueId: Int,
+    @SerialName("league_name")
+    val leagueName: String
+    @SerialName("event_note")
+    val eventNote: String
+    // TODO: count of sidebets is ignored
+    //@SerialName("count_of_sidebets")
+    val matches: List<Match>
+)
+
+@Serializable
+data class Matches(
+    @SerialName("oppty_info_number")
+    val optyInfoNumber: Int,
+    @SerialName("oppty_end_date_format")
+    val optyEndDateFormat: String,
+    @SerialName("oppty_end_time_format")
+    val optyEndTimeFormat: String,
+    @SerialName("team_name_1")
+    val teamName1: String
+    @SerialName("team_name_2")
+    val teamName2: String,
+    @SerialName("oppty_name")
+    val optyName: String,
+    @SerialName("id_opportunity")
+    val opportunityId: Int,
+    @SerialName("oppty_end_date")
+    val opptyEndDate: String,
+    @SerialName("oppty_end_time")
+    val opptyEndTime: String,
+    @SerialName("oppty_note")
+    val opptyNote: String,
+    @SerialName("oppty_type_name")
+    val opptyTypeName: Strign,
+    @SerialName("id_oppty_tree_type")
+    val opptyTreeTypeId: Int,
+    val odds: List<Odd>
+)
+
+@Seriali
+data class Odd(
+    val tipName: String,
+    val tipShortname: String,
+    val oddsValue: Floatw,
+    val oddsValueNumber: Float,
+    val oddsId: Int,
+    val tipId: Int,
+    val inTicket: Boolean
+)
+
 class TestApi {
     private val httpClient = HttpClient {
         install(JsonFeature) {
@@ -69,6 +157,16 @@ class TestApi {
         return downloadDB()
     }
 
+    suspend fun updatePrematchJSON() {
+        return httpClient.post<JSONFile>(DB_ENDPOINT) {
+            // When you send body in form of data class (serialized to JSON) you need to add this header
+            header(HttpHeaders.ContentType, ContentType.Application.Json)
+            body = JSONRequestBody()
+        }
+    }
+
+
+
     private fun writeInputStreamToDBFile(inputStream: java.io.InputStream,outputStream: FileOutputStream) {
         val bufferSize = 1024
         val buffer = ByteArray(bufferSize)
@@ -85,6 +183,20 @@ class TestApi {
 
 @Serializable
 data class DBFileRequestBody(
+    @SerialName("app-id")
+    val appId: String = "1eea0ad7-6075-40ff-bff4-a9915697bb03",
+    val id: Int = 1,
+    val jsonrpc: Float = 2.0f,
+    val lang: String = "pl",
+    val method: String = "prematch.dbdata",
+    val params: DBFileRequestBodyParams = DBFileRequestBodyParams(),
+    val session: String = "1eea0ad7-6075-40ff-bff4-a9915697bb03",
+    @SerialName("station-name")
+    val stationName: String = "androidapp"
+)
+
+@Serializable
+data class JSONRequestBody(
     @SerialName("app-id")
     val appId: String = "1eea0ad7-6075-40ff-bff4-a9915697bb03",
     val id: Int = 1,
