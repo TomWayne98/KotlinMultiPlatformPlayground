@@ -9,9 +9,8 @@ import io.ktor.http.content.*
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
-
-
 import kotlinx.serialization.builtins.serializer
+import java.io.*
 
 @Serializable
 data class DBFile(
@@ -44,11 +43,38 @@ class TestApi {
         }
     }
 
-    suspend fun getDB(): DBFile {
+    suspend fun downloadDB(): DBFile {
         return httpClient.post<DBFile>(DB_ENDPOINT) {
             // When you send body in form of data class (serialized to JSON) you need to add this header
             header(HttpHeaders.ContentType, ContentType.Application.Json)
             body = DBFileRequestBody()
+        }
+    }
+
+
+    suspend fun getDB(): DBFile {
+        val data = downloadDB().result!!.data
+        val sourceStream: ByteArrayInputStream = ByteArrayInputStream(
+            android.util.Base64.decode(data, android.util.Base64.DEFAULT)
+        )
+        val mDbFileTemp = File(Platform().dbLocationPath, "temp_prem.db");
+
+
+        val inputStream: java.util.zip.GZIPInputStream = java.util.zip.GZIPInputStream(sourceStream)
+        val outputStream = FileOutputStream(mDbFileTemp);
+
+        writeInputStreamToDBFile(inputStream, outputStream)
+
+        // InputSource(GZIPInputStream(downloadDB().result!!.data))
+        return downloadDB()
+    }
+
+    private fun writeInputStreamToDBFile(inputStream: java.io.InputStream,outputStream: FileOutputStream) {
+        val bufferSize = 1024
+        val buffer = ByteArray(bufferSize)
+        var len: Int
+        while (inputStream.read(buffer).also { len = it } != -1) {
+            outputStream.write(buffer, 0, len)
         }
     }
 
