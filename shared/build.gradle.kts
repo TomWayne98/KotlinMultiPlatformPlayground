@@ -68,6 +68,12 @@ android {
     }
 }
 
+sqldelight {
+    database("AppDatabase") {
+        packageName = "cz.wayne.kmplayground"
+    }
+}
+
 val packForXcode by tasks.creating(Sync::class) {
     group = "build"
     val mode = System.getenv("CONFIGURATION") ?: "DEBUG"

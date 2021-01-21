@@ -11,6 +11,8 @@ import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
 import cz.wayne.kmplayground.shared.Greeting
 import cz.wayne.kmplayground.shared.TestApi
+import cz.wayne.kmplayground.shared.MultiplatformInit
+import cz.wayne.kmplayground.shared.SQLDelightDriver
 import kotlinx.coroutines.GlobalScope
 
 
@@ -32,23 +34,24 @@ class MainActivity : AppCompatActivity() {
         if (!hasPermission()) {
             askForPermissions()
         } else {
-           MainScope().launch {
-               val timeStart = System.currentTimeMillis()
-               Log.d("TOMW", "Hej 1")
-               val dbFile = TestApi().updatePrematchJSON()
-               val timeEnd = System.currentTimeMillis()
-               Log.d("TOMW", "Hej 2 - it took ${timeEnd - timeStart} ms")
+            MainScope().launch {
+                val timeStart = System.currentTimeMillis()
+                Log.d("TOMW", "Hej 1")
+                val dbFile = TestApi().updatePrematchJSON()
+                val timeEnd = System.currentTimeMillis()
+                Log.d("TOMW", "Hej 2 - it took ${timeEnd - timeStart} ms")
             }
-
         }
+
+        MultiplatformInit.createDatabase(SQLDelightDriver(this))
     }
 
     private fun hasPermission(): Boolean {
-            // Check if we have write permission
-            val permission = ActivityCompat.checkSelfPermission(
-                this,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE
-            )
+        // Check if we have write permission
+        val permission = ActivityCompat.checkSelfPermission(
+            this,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE
+        )
         return permission == PackageManager.PERMISSION_GRANTED
     }
 
