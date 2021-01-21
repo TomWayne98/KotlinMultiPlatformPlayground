@@ -34,13 +34,15 @@ data class DBFileResult(
 )
 
 @Serializable
-data class JSONFileResult(
-    val jsonrpc: Float = 2.0,
+data class JSONFile(
+    val jsonrpc: Float = 2.0f,
     val result: Result
 )
 
 @Serializable
-data class Result(val sports: List<Sport>)
+data class Result(
+    val sports: List<Sport>
+    )
 
 @Serializable
 data class Sport(
@@ -73,51 +75,58 @@ data class League(
     @SerialName("id_league")
     val leagueId: Int,
     @SerialName("league_name")
-    val leagueName: String
+    val leagueName: String,
     @SerialName("event_note")
-    val eventNote: String
+    val eventNote: String? = null,
     // TODO: count of sidebets is ignored
     //@SerialName("count_of_sidebets")
     val matches: List<Match>
 )
 
 @Serializable
-data class Matches(
+data class Match(
     @SerialName("oppty_info_number")
     val optyInfoNumber: Int,
     @SerialName("oppty_end_date_format")
-    val optyEndDateFormat: String,
+    val optyEndDateFormat: String? = null,
     @SerialName("oppty_end_time_format")
     val optyEndTimeFormat: String,
     @SerialName("team_name_1")
-    val teamName1: String
+    val teamName1: String? = null,
     @SerialName("team_name_2")
-    val teamName2: String,
+    val teamName2: String? = null,
     @SerialName("oppty_name")
-    val optyName: String,
+    val optyName:  String? = null,
     @SerialName("id_opportunity")
     val opportunityId: Int,
     @SerialName("oppty_end_date")
-    val opptyEndDate: String,
+    val opptyEndDate:String? = null,
     @SerialName("oppty_end_time")
-    val opptyEndTime: String,
+    val opptyEndTime:String? = null,
     @SerialName("oppty_note")
-    val opptyNote: String,
+    val opptyNote:String? = null,
     @SerialName("oppty_type_name")
-    val opptyTypeName: Strign,
+    val opptyTypeName:  String? = null,
     @SerialName("id_oppty_tree_type")
     val opptyTreeTypeId: Int,
     val odds: List<Odd>
 )
 
-@Seriali
+@Serializable
 data class Odd(
-    val tipName: String,
-    val tipShortname: String,
-    val oddsValue: Floatw,
+    @SerialName("tip_name")
+    val tipName: String? = null,
+    @SerialName("tip_shortname")
+    val tipShortname: String? = null,
+    @SerialName("odds_value")
+    val oddsValue: Float,
+    @SerialName("odds_value_numeric")
     val oddsValueNumber: Float,
+    @SerialName("id_odds")
     val oddsId: Int,
+    @SerialName("id_tip")
     val tipId: Int,
+    @SerialName("in_ticket")
     val inTicket: Boolean
 )
 
@@ -158,6 +167,37 @@ class TestApi {
     }
 
     suspend fun updatePrematchJSON() {
+        val result = downloadJSON()
+        android.util.Log.d("TOMW", ": Downloaded")
+        val sports = result.result.sports
+        android.util.Log.d("TOMW", ": Sport size ${sports.size}")
+        val regions = mutableListOf<Region>()
+        val leagues = mutableListOf<League>()
+        val matches = mutableListOf<Match>()
+        val odds = mutableListOf<Odd>()
+
+        sports.forEach { it ->
+            android.util.Log.d("TOMW", ": Region: ${it.regions}")
+            regions.addAll(it.regions)
+        }
+
+        regions.forEach {
+            leagues.addAll(it.leagues)
+        }
+
+        leagues.forEach {
+            matches.addAll(it.matches)
+        }
+
+        matches.forEach {
+            odds.addAll(it.odds)
+        }
+
+        android.util.Log.d("TOMW", "We parsed like: ${odds.size} odds")
+
+    }
+
+    suspend fun downloadJSON() : JSONFile {
         return httpClient.post<JSONFile>(DB_ENDPOINT) {
             // When you send body in form of data class (serialized to JSON) you need to add this header
             header(HttpHeaders.ContentType, ContentType.Application.Json)
@@ -202,7 +242,7 @@ data class JSONRequestBody(
     val id: Int = 1,
     val jsonrpc: Float = 2.0f,
     val lang: String = "pl",
-    val method: String = "prematch.dbdata",
+    val method: String = "prematch.offer",
     val params: DBFileRequestBodyParams = DBFileRequestBodyParams(),
     val session: String = "1eea0ad7-6075-40ff-bff4-a9915697bb03",
     @SerialName("station-name")

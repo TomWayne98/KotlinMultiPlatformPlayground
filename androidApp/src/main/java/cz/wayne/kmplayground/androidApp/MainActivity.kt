@@ -7,10 +7,11 @@ import android.util.Log
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
-import cz.wayne.kmplayground.shared.Greeting
-import cz.wayne.kmplayground.shared.TestApi
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
+import cz.wayne.kmplayground.shared.Greeting
+import cz.wayne.kmplayground.shared.TestApi
+import kotlinx.coroutines.GlobalScope
 
 
 fun greet(): String {
@@ -31,9 +32,12 @@ class MainActivity : AppCompatActivity() {
         if (!hasPermission()) {
             askForPermissions()
         } else {
-            MainScope().launch {
-                val dbFile = TestApi().getDB()
-                Log.d("TOMW", "DbFile data: ${dbFile.result?.data}")
+           MainScope().launch {
+               val timeStart = System.currentTimeMillis()
+               Log.d("TOMW", "Hej 1")
+               val dbFile = TestApi().updatePrematchJSON()
+               val timeEnd = System.currentTimeMillis()
+               Log.d("TOMW", "Hej 2 - it took ${timeEnd - timeStart} ms")
             }
 
         }

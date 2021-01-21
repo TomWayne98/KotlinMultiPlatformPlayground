@@ -22,12 +22,12 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                api("dev.icerock.moko:socket-io:0.2.0")
+                implementation("dev.icerock.moko:socket-io:0.2.0")
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9")
                 implementation("io.ktor:ktor-client-core:$ktorVersion")
                 implementation("io.ktor:ktor-client-serialization:$ktorVersion")
                 implementation("com.squareup.sqldelight:runtime:$sqlDelightVersion")
-                implementation("com.squareup.okio:okio:2.10.0")
+                implementation("com.squareup.okio:okio:3.0.0-alpha.1")
             }
         }
         val commonTest by getting {
